@@ -18,6 +18,9 @@ class PRDatabase(ABC):
     def fetch_prs(self, user_id):
         pass
 
+    @abstractmethod
+    def fetch_leaderboard(self, exercise):
+        pass
 
 # Firebase Strategy Implementation
 class FirebaseDB(PRDatabase):
@@ -59,6 +62,8 @@ class FirebaseDB(PRDatabase):
         
         return pr_list if pr_list else "No PRs found (Firebase)."
 
+    def fetch_leaderboard(self, exercise):
+        return super().fetch_leaderboard(exercise)
 
 # SQLite Strategy Implementation
 class SQLiteDB(PRDatabase):
@@ -105,3 +110,8 @@ class SQLiteDB(PRDatabase):
             pr_list += f"{row[0]}: {row[1]}kg on {row[2]}\n"
 
         return pr_list if pr_list else "No PRs found."
+    
+    def fetch_leaderboard(self, exercise):
+            self.c.execute('SELECT user_id, weight FROM prs WHERE exercise=? ORDER BY weight DESC LIMIT 10', (exercise,))
+            rows = self.c.fetchall()
+            return rows  # Returns a list of tuples (user_id, weight)
